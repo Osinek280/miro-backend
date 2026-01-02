@@ -1,9 +1,13 @@
 package com.example.Miro.auth;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -26,6 +30,14 @@ public class AuthController {
       @RequestBody LoginRequest request
   ) {
     return ResponseEntity.ok(service.login(request));
+  }
+
+  @PostMapping("/refresh-token")
+  public void refreshToken(
+      HttpServletRequest request,
+      HttpServletResponse response
+  ) throws IOException {
+    service.refreshToken(request, response);
   }
 //  @GetMapping("/me")
 //  @Operation(summary = "Get user info", description = "Returns basic user information (email, firstname).")

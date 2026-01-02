@@ -10,6 +10,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -25,15 +27,34 @@ public class JwtService {
     return claimsResolver.apply(claims);
   }
 
-  public String generateToken(String email) {
-    Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + 1000 * 60 * 24);
+  public String generateToken(UserDetails userDetails) {
+    return generateToken(new HashMap<>(), userDetails);
+  }
 
-    return Jwts.builder()
-        .setHeaderParam("typ", "JWT")
-        .setSubject(email)
-        .setIssuedAt(now)
-        .setExpiration(expiryDate)
+  public String generateToken(
+      Map<String, Object> extraClaims,
+      UserDetails userDetails
+  ) {
+    return buildToken(extraClaims, userDetails, 86400000);
+  }
+
+  public String generateRefreshToken(
+      UserDetails userDetails
+  ) {
+    return buildToken(new HashMap<>(), userDetails, 604800000);
+  }
+
+  private String buildToken(
+      Map<String, Object> extraClaims,
+      UserDetails userDetails,
+      long expiration
+  ) {
+    return Jwts
+        .builder()
+        .setClaims(extraClaims)
+        .setSubject(userDetails.getUsername())
+        .setIssuedAt(new Date(System.currentTimeMillis()))
+        .setExpiration(new Date(System.currentTimeMillis() + expiration))
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
         .compact();
   }
