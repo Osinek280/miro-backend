@@ -8,6 +8,7 @@ import com.example.miro.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,14 @@ public class AuthService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
 
   public AuthenticationResponse register(RegisterRequest request) {
+
+    if (userRepository.existsByEmail(request.getEmail())) {
+      throw new IllegalStateException("Email already in use");
+    }
+
     AppUser user = new AppUser();
     user.setFirstname(request.getFirstname());
     user.setLastname(request.getLastname());
@@ -27,8 +34,10 @@ public class AuthService {
 
     userRepository.save(user);
 
+    String accessToken = jwtService.generateToken(user.getEmail());
+
     return AuthenticationResponse.builder()
-        .accessToken("access-token-test")
+        .accessToken(accessToken)
         .build();
   }
 
@@ -36,14 +45,17 @@ public class AuthService {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             request.getEmail(),
-            request.getEmail()
+            request.getPassword()
         )
     );
 
     AppUser user = userRepository.findByEmail(request.getEmail())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    String accessToken = jwtService.generateToken(user.getEmail());
+
     return AuthenticationResponse.builder()
-        .accessToken("access-token-test")
+        .accessToken(accessToken)
         .build();
   }
 }
