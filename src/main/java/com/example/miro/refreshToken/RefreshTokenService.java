@@ -3,6 +3,8 @@ package com.example.miro.refreshToken;
 import com.example.miro.user.AppUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -28,15 +30,30 @@ public class RefreshTokenService {
   }
 
   public RefreshToken verifyToken(String refreshToken) {
-    return refreshTokenRepository.findValidByToken(refreshToken)
+    return refreshTokenRepository
+        .findValidByToken(refreshToken)
         .orElseThrow(() -> new RuntimeException("Invalid or expired refresh token"));
   }
 
-  public RefreshToken rotateToken(RefreshToken oldToken, String userAgent, String ipAddress) {
+  @Transactional
+  public String rotateToken(RefreshToken oldToken) {
+    String newTokenValue = generateRandomToken();
+
+    RefreshToken newToken = RefreshToken.builder()
+        .user(oldToken.getUser())
+        .token(newTokenValue)
+        .expiresAt(Instant.now().plus(14, ChronoUnit.DAYS))
+        .build();
+
     oldToken.setRevokedAt(Instant.now());
+    oldToken.setReplacedBy(newToken);
+
     refreshTokenRepository.save(oldToken);
-    return oldToken;
+    refreshTokenRepository.save(newToken);
+
+    return newTokenValue;
   }
+
 
   private String generateRandomToken() {
     byte[] bytes = new byte[64];

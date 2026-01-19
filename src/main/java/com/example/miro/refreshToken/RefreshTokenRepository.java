@@ -1,5 +1,6 @@
 package com.example.miro.refreshToken;
 
+import com.example.miro.user.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
 
   @Query("""
     SELECT rt FROM RefreshToken rt
@@ -19,38 +21,21 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
   """)
   Optional<RefreshToken> findValidByToken(@Param("token") String token);
 
-  // 2️⃣ Wszystkie aktywne tokeny użytkownika (logout-all)
-  @Query("""
-    SELECT rt FROM RefreshToken rt
-    WHERE rt.user.id = :userId
-      AND rt.revokedAt IS NULL
-      AND rt.expiresAt > CURRENT_TIMESTAMP
-  """)
-  List<RefreshToken> findAllValidByUserId(@Param("userId") Long userId);
-
-  // 3️⃣ Revoke wszystkich tokenów użytkownika
   @Modifying
   @Query("""
     UPDATE RefreshToken rt
     SET rt.revokedAt = CURRENT_TIMESTAMP
-    WHERE rt.user.id = :userId
+    WHERE rt.user = :user
       AND rt.revokedAt IS NULL
   """)
-  int revokeAllByUserId(@Param("userId") Long userId);
+  void revokeAllForUser(@Param("user") AppUser user);
 
-  // 4️⃣ Detekcja reuse attack (token już cofnięty)
-  @Query("""
-    SELECT rt FROM RefreshToken rt
-    WHERE rt.token = :token
-      AND rt.revokedAt IS NOT NULL
-  """)
-  Optional<RefreshToken> findRevokedByToken(@Param("token") String token);
-
-  // 5️⃣ Cleanup starych tokenów (cron)
   @Modifying
   @Query("""
     DELETE FROM RefreshToken rt
-    WHERE rt.expiresAt < :cutoff
+    WHERE rt.expiresAt < :threshold
   """)
-  int deleteExpired(@Param("cutoff") Instant cutoff);
+  void deleteExpired(@Param("threshold") Instant threshold);
+
+  List<RefreshToken> findAllByUser(AppUser user);
 }
