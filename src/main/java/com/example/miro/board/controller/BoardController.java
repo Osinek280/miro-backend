@@ -1,5 +1,9 @@
-package com.example.miro.board;
+package com.example.miro.board.controller;
 
+import com.example.miro.board.dto.BoardViewDto;
+import com.example.miro.board.dto.CameraRequest;
+import com.example.miro.board.dto.CreateBoardRequest;
+import com.example.miro.board.service.BoardService;
 import com.example.miro.user.AppUser;
 import com.example.miro.user.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,6 @@
-package com.example.miro.board;
+package com.example.miro.board.dto;
+
+import com.example.miro.board.entities.Role;
 
 import java.time.Instant;
 import java.util.UUID;

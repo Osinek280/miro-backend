@@ -1,4 +1,4 @@
-package com.example.miro.board;
+package com.example.miro.board.entities;
 
 import com.example.miro.user.AppUser;
 import jakarta.persistence.*;

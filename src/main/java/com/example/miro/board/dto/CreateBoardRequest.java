@@ -1,4 +1,4 @@
-package com.example.miro.board;
+package com.example.miro.board.dto;
 
 public record CreateBoardRequest(
     String name

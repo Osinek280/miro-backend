@@ -1,5 +1,6 @@
-package com.example.miro.board;
+package com.example.miro.board.repository;
 
+import com.example.miro.board.entities.Board;
 import com.example.miro.user.AppUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

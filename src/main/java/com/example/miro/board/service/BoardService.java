@@ -1,5 +1,11 @@
-package com.example.miro.board;
+package com.example.miro.board.service;
 
+import com.example.miro.board.dto.BoardViewDto;
+import com.example.miro.board.entities.Board;
+import com.example.miro.board.entities.BoardMember;
+import com.example.miro.board.entities.Role;
+import com.example.miro.board.repository.BoardMemberRepository;
+import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.user.AppUser;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
