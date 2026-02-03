@@ -7,10 +7,12 @@ import com.example.miro.board.service.BoardService;
 import com.example.miro.user.AppUser;
 import com.example.miro.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,9 +34,10 @@ public class BoardController {
   }
 
   @PostMapping
-  public UUID create(@RequestBody CreateBoardRequest req,
-                     @AuthenticationPrincipal AppUser user) {
-    return boardService.createBoard(req.name(), user);
+  public ResponseEntity<UUID> create(@RequestBody CreateBoardRequest req,
+                                     @AuthenticationPrincipal AppUser user) {
+    UUID id = boardService.createBoard(req.name(), user);
+    return ResponseEntity.created(URI.create("/api/boards/" + id)).body(id);
   }
 
   @PostMapping("/{id}/open")
