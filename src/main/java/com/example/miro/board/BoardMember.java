@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -24,11 +25,19 @@ public class BoardMember {
   private UUID id;
 
   @ManyToOne(optional = false)
+  @JoinColumn(name = "board_id", nullable = false)
   private Board board;
 
   @ManyToOne(optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
   private AppUser user;
 
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  private Instant lastOpenedAt;
+
+  private Double cameraX;
+  private Double cameraY;
+  private Double zoom;
 }
