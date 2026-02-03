@@ -1,0 +1,76 @@
+package com.example.miro.board;
+
+import com.example.miro.user.AppUser;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@AllArgsConstructor
+public class BoardService {
+  private final BoardRepository boardRepo;
+  private final BoardMemberRepository memberRepo;
+
+  public List<BoardViewDto> getMyBoards(AppUser user) {
+    return memberRepo
+        .findByUserOrderByLastOpenedAtDesc(user)
+        .stream()
+        .map(this::toDto)
+        .toList();
+  }
+
+  public UUID createBoard(String name, AppUser owner) {
+
+    Board board = boardRepo.save(
+        Board.builder()
+            .name(name)
+            .owner(owner)
+            .build()
+    );
+
+    memberRepo.save(
+        BoardMember.builder()
+            .board(board)
+            .user(owner)
+            .role(Role.OWNER)
+            .cameraX(0.0)
+            .cameraY(0.0)
+            .zoom(1.0)
+            .lastOpenedAt(Instant.now())
+            .build()
+    );
+
+    return board.getId();
+  }
+
+  public BoardViewDto openBoard(UUID boardId, AppUser user,
+                                double x, double y, double zoom) {
+
+    BoardMember member = memberRepo
+        .findByBoardIdAndUser(boardId, user)
+        .orElseThrow(() -> new RuntimeException("No access"));
+
+    member.setLastOpenedAt(Instant.now());
+    member.setCameraX(x);
+    member.setCameraY(y);
+    member.setZoom(zoom);
+
+    return toDto(member);
+  }
+
+
+  private BoardViewDto toDto(BoardMember m) {
+    return new BoardViewDto(
+        m.getBoard().getId(),
+        m.getBoard().getName(),
+        m.getRole(),
+        m.getLastOpenedAt(),
+        m.getCameraX(),
+        m.getCameraY(),
+        m.getZoom()
+    );
+  }
+}
