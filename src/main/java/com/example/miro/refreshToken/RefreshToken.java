@@ -17,7 +17,7 @@ import java.util.UUID;
 @Table(name = "refresh_token")
 public class RefreshToken {
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.UUID)
   public UUID id;
 
   @ManyToOne(fetch=FetchType.LAZY)

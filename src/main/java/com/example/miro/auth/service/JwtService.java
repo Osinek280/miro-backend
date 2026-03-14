@@ -36,13 +36,14 @@ public class JwtService {
     return claimsResolver.apply(claims);
   }
 
-  public String generateToken(String email) {
+  public String generateToken(String email, Integer userId) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + 1000 * 60 * 24);
 
     return Jwts.builder()
         .setHeaderParam("typ", "JWT")
         .setSubject(email)
+        .claim("userId", userId)
         .setIssuedAt(now)
         .setExpiration(expiryDate)
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
