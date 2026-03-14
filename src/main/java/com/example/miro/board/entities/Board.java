@@ -26,7 +26,7 @@ public class Board {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "owner_id", nullable = false)
   private AppUser owner;
 
@@ -38,6 +38,7 @@ public class Board {
   private Instant createdAt;
 
   @LastModifiedDate
+  @Column(nullable = false)
   private Instant updatedAt;
 
   @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)

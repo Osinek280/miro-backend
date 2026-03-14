@@ -77,20 +77,20 @@ public class BoardService {
     return board.getId();
   }
 
-  public BoardViewDto openBoard(UUID boardId, AppUser user,
-                                double x, double y, double zoom) {
-
-    BoardMember member = memberRepo
-        .findByBoardIdAndUser(boardId, user)
-        .orElseThrow(() -> new RuntimeException("No access"));
-
-    member.setLastOpenedAt(Instant.now());
-    member.setCameraX(x);
-    member.setCameraY(y);
-    member.setZoom(zoom);
-
-    return toDto(member);
-  }
+//  public BoardViewDto openBoard(UUID boardId, AppUser user,
+//                                double x, double y, double zoom) {
+//
+//    BoardMember member = memberRepo
+//        .findByBoardIdAndUser(boardId, user)
+//        .orElseThrow(() -> new RuntimeException("No access"));
+//
+//    member.setLastOpenedAt(Instant.now());
+//    member.setCameraX(x);
+//    member.setCameraY(y);
+//    member.setZoom(zoom);
+//
+//    return toDto(member);
+//  }
 
 
   private BoardViewDto toDto(BoardMember m) {

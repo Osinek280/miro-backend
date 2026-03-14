@@ -56,15 +56,15 @@ public class BoardController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/{id}/open")
-  public BoardViewDto open(
-      @PathVariable UUID id,
-      @RequestBody CameraRequest camera,
-      @AuthenticationPrincipal AppUser user
-  ) {
-    return boardService.openBoard(
-        id, user,
-        camera.x(), camera.y(), camera.zoom()
-    );
-  }
+//  @PostMapping("/{id}/open")
+//  public BoardViewDto open(
+//      @PathVariable UUID id,
+//      @RequestBody CameraRequest camera,
+//      @AuthenticationPrincipal AppUser user
+//  ) {
+//    return boardService.openBoard(
+//        id, user,
+//        camera.x(), camera.y(), camera.zoom()
+//    );
+//  }
 }

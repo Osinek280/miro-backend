@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -24,20 +25,30 @@ public class BoardMember {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "board_id", nullable = false)
   private Board board;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false)
   private AppUser user;
 
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private Role role;
+
+  @CreatedDate
+  @Column(nullable = false, updatable = false)
+  private Instant joinedAt;
 
   private Instant lastOpenedAt;
 
-  private Double cameraX;
-  private Double cameraY;
-  private Double zoom;
+  @Column(nullable = false)
+  private double cameraX = 0.0;
+
+  @Column(nullable = false)
+  private double cameraY = 0.0;
+
+  @Column(nullable = false)
+  private double zoom = 1.0;
 }
