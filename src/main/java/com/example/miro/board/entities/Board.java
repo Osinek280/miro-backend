@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -28,6 +29,7 @@ public class Board {
   @JoinColumn(name = "owner_id", nullable = false)
   private AppUser owner;
 
+  @Column(nullable = false)
   private String name;
 
   @CreatedDate
@@ -36,4 +38,7 @@ public class Board {
 
   @LastModifiedDate
   private Instant updatedAt;
+
+  @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<BoardMember> members;
 }

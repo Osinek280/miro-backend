@@ -3,6 +3,7 @@ package com.example.miro.board.controller;
 import com.example.miro.board.dto.BoardViewDto;
 import com.example.miro.board.dto.CameraRequest;
 import com.example.miro.board.dto.CreateBoardRequest;
+import com.example.miro.board.dto.RenameBoardRequest;
 import com.example.miro.board.service.BoardService;
 import com.example.miro.user.AppUser;
 import com.example.miro.user.UserRepository;
@@ -38,6 +39,21 @@ public class BoardController {
                                      @AuthenticationPrincipal AppUser user) {
     UUID id = boardService.createBoard(req.name(), user);
     return ResponseEntity.created(URI.create("/api/boards/" + id)).body(id);
+  }
+
+  @PatchMapping("/{boardId}/rename")
+  public ResponseEntity<Void> rename(@PathVariable UUID boardId,
+                                     @RequestBody RenameBoardRequest req,
+                                     @AuthenticationPrincipal AppUser user) {
+    boardService.renameBoard(boardId, req.name(), user);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{boardId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID boardId,
+                                     @AuthenticationPrincipal AppUser user) {
+    boardService.deleteBoard(boardId, user);
+    return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/{id}/open")

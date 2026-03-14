@@ -9,6 +9,7 @@ import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.user.AppUser;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +27,30 @@ public class BoardService {
         .stream()
         .map(this::toDto)
         .toList();
+  }
+
+  @Transactional
+  public void deleteBoard(UUID boardId, AppUser user) {
+    Board board = boardRepo.findById(boardId)
+        .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+
+    if (!board.getOwner().getId().equals(user.getId())) {
+      throw new SecurityException("Access denied");
+    }
+
+    boardRepo.delete(board);
+  }
+
+  public void renameBoard(UUID boardId, String newName, AppUser user) {
+    Board board = boardRepo.findById(boardId)
+        .orElseThrow(() -> new RuntimeException("Board not found"));
+
+    if(!board.getOwner().getId().equals(user.getId())) {
+      throw new RuntimeException("No permission");
+    }
+
+    board.setName(newName);
+    boardRepo.save(board);
   }
 
   public UUID createBoard(String name, AppUser owner) {
