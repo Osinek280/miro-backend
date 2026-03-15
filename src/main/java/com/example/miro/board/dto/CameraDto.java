@@ -1,6 +1,6 @@
 package com.example.miro.board.dto;
 
-public record CameraRequest(
+public record CameraDto(
     double x,
     double y,
     double zoom

@@ -7,6 +7,7 @@ import java.util.UUID;
 public record BoardSnapshotDto(
     UUID boardId,
     Instant serverTimestamp,
-    List<DrawObjectDto> objects
+    List<DrawObjectDto> objects,
+    CameraDto camera
 ) {
 }

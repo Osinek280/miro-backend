@@ -70,6 +70,7 @@ public class BoardService {
             .cameraX(0.0)
             .cameraY(0.0)
             .zoom(1.0)
+            .joinedAt(Instant.now())
             .lastOpenedAt(Instant.now())
             .build()
     );
