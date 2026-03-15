@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface BoardMemberRepository extends JpaRepository<BoardMember, UUID> {
   List<BoardMember> findByUserOrderByLastOpenedAtDesc(AppUser user);
 
-  Optional<BoardMember> findByBoardIdAndUser(UUID boardId, AppUser user);
+  Optional<BoardMember> findByBoardIdAndUserId(UUID boardId, UUID userId);
 }

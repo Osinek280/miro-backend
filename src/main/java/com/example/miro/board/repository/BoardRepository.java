@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BoardRepository extends JpaRepository<Board, UUID> {
-  List<Board> findByOwner(AppUser owner);
-
-  Page<Board> findAll(Pageable pageable);
+//  List<Board> findByOwner(AppUser owner);
+//
+//  Page<Board> findAll(Pageable pageable);
 }

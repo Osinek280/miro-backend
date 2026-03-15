@@ -20,14 +20,11 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class BoardSnapshotService {
-  private final BoardRepository boardRepo;
   private final DrawObjectRepository drawObjectRepository;
   private final BoardMemberRepository memberRepository;
 
-  public BoardSnapshotDto getSnapshot(UUID boardId, AppUser user) {
-    BoardMember member = memberRepository
-        .findByBoardIdAndUser(boardId, user)
-        .orElseThrow(() -> new AccessDeniedException("Not a member"));
+  public BoardSnapshotDto getSnapshot(UUID boardId, UUID userId) {
+    BoardMember member = getMember(boardId, userId);
 
     List<DrawObjectDto> objects = drawObjectRepository
         .findLiveByBoardId(boardId)
@@ -38,6 +35,11 @@ public class BoardSnapshotService {
     CameraDto camera = new CameraDto(member.getCameraX(), member.getCameraY(), member.getZoom());
 
     return new BoardSnapshotDto(boardId, Instant.now(), objects, camera);
+  }
+
+  private BoardMember getMember(UUID boardId, UUID userId) {
+    return memberRepository.findByBoardIdAndUserId(boardId, userId)
+        .orElseThrow(() -> new AccessDeniedException("Not a member of board: " + boardId));
   }
 
   private DrawObjectDto toDto(DrawObject e) {

@@ -15,6 +15,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -36,7 +37,7 @@ public class JwtService {
     return claimsResolver.apply(claims);
   }
 
-  public String generateToken(String email, Integer userId) {
+  public String generateToken(String email, UUID userId) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + 1000 * 60 * 24);
 

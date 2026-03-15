@@ -60,18 +60,6 @@ public class BoardController {
 
   @GetMapping("/{boardId}/snapshot")
   public ResponseEntity<BoardSnapshotDto> getSnapshot(@PathVariable UUID boardId, @AuthenticationPrincipal AppUser user) {
-    return ResponseEntity.ok(boardSnapshotService.getSnapshot(boardId, user));
+    return ResponseEntity.ok(boardSnapshotService.getSnapshot(boardId, user.getId()));
   }
-
-//  @PostMapping("/{id}/open")
-//  public BoardViewDto open(
-//      @PathVariable UUID id,
-//      @RequestBody CameraRequest camera,
-//      @AuthenticationPrincipal AppUser user
-//  ) {
-//    return boardService.openBoard(
-//        id, user,
-//        camera.x(), camera.y(), camera.zoom()
-//    );
-//  }
 }
