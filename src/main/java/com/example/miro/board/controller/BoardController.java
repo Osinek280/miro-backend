@@ -1,9 +1,6 @@
 package com.example.miro.board.controller;
 
-import com.example.miro.board.dto.BoardSnapshotDto;
-import com.example.miro.board.dto.BoardViewDto;
-import com.example.miro.board.dto.CreateBoardRequest;
-import com.example.miro.board.dto.RenameBoardRequest;
+import com.example.miro.board.dto.*;
 import com.example.miro.board.service.BoardService;
 import com.example.miro.board.service.BoardSnapshotService;
 import com.example.miro.user.AppUser;
@@ -59,7 +56,8 @@ public class BoardController {
   }
 
   @GetMapping("/{boardId}/snapshot")
-  public ResponseEntity<BoardSnapshotDto> getSnapshot(@PathVariable UUID boardId, @AuthenticationPrincipal AppUser user) {
+  public ResponseEntity<BoardSnapshotDto> getSnapshot(@PathVariable UUID boardId,
+                                                      @AuthenticationPrincipal AppUser user) {
     return ResponseEntity.ok(boardSnapshotService.getSnapshot(boardId, user.getId()));
   }
 }
