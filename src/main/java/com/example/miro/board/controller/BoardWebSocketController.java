@@ -9,7 +9,6 @@ public class BoardWebSocketController {
   @MessageMapping("/draw")
   @SendTo("/topic/draw")
   public String draw(String data) {
-    System.out.println("Get: " + data);
     return data;
   }
 }
