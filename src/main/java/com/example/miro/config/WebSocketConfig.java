@@ -1,6 +1,8 @@
 package com.example.miro.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -12,7 +14,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+  private final WebSocketAuthChannelInterceptor webSocketAuthChannelInterceptor;
+
+  @Override
+  public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(webSocketAuthChannelInterceptor);
+  }
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry config) {
@@ -28,8 +37,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-    registration.setMessageSizeLimit(1024 * 1024); // 256 KB
-    registration.setSendBufferSizeLimit(1024 * 1024); // 512 KB
+    registration.setMessageSizeLimit(1024 * 1024 * 10); // 10 MB
+    registration.setSendTimeLimit(20000);
+    registration.setSendBufferSizeLimit(1024 * 1024 * 10); // 10 MB
   }
 
   @Override
