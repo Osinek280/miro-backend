@@ -65,17 +65,31 @@ public class BoardSnapshotService {
   private void applyToBoard(Board board, OperationDto op) {
     if (op instanceof OperationDto.AddOp add) {
       applyAdd(board, add);
+    } else if (op instanceof OperationDto.RemoveOp remove) {
+      applyRemove(board, remove);
+    } else if (op instanceof OperationDto.TranslateOp trans) {
+      applyTranslate(board, trans);
+    } else if (op instanceof OperationDto.BatchOp batch) {
+      flattenBatch(batch).forEach(child -> applyToBoard(board, child));
+    } else {
+      throw new IllegalArgumentException("Unknown operation type: " + op.getClass());
     }
-//    } else if (op instanceof OperationDto.RemoveOp remove) {
-//      applyRemove(board, remove);
-//    } else if (op instanceof OperationDto.TranslateOp trans) {
-//      applyTranslate(board, trans);
-//    } else if (op instanceof OperationDto.BatchOp batch) {
-//      flattenBatch(batch).forEach(child -> applyToBoard(board, child));
-//    } else {
-//      throw new IllegalArgumentException("Unknown operation type: " + op.getClass());
-//    }
   }
+
+  private List<OperationDto> flattenBatch(OperationDto.BatchOp batch) {
+    List<OperationDto> out = new ArrayList<>();
+    for (OperationDto op : batch.operations()) {
+      if (op instanceof OperationDto.BatchOp nested) {
+        out.addAll(flattenBatch(nested));
+      } else {
+        out.add(op);
+      }
+    }
+    out.sort(Comparator.comparingLong(OperationDto::timestamp)
+        .thenComparing(OperationDto::opId));
+    return out;
+  }
+
 
   private void applyAdd(Board board, OperationDto.AddOp op) {
     Map<UUID, DrawObject> existing = new HashMap<>();
@@ -110,6 +124,44 @@ public class BoardSnapshotService {
         board.getObjects().add(obj);
         existing.put(id, obj);
       }
+    }
+  }
+
+  // ─── REMOVE (tombstone) ───────────────────────────────────────────────────
+
+  private void applyRemove(Board board, OperationDto.RemoveOp op) {
+    Set<UUID> ids = new HashSet<>(op.ids());
+    for (DrawObject obj : board.getObjects()) {
+      if (ids.contains(obj.getId())) {
+        obj.setTombstone(true);
+      }
+    }
+  }
+
+  // ─── TRANSLATE (LWW) ─────────────────────────────────────────────────────
+
+  private void applyTranslate(Board board, OperationDto.TranslateOp op) {
+    Set<UUID> ids = new HashSet<>(op.ids());
+    Instant opTs = Instant.ofEpochMilli(op.timestamp());
+
+    for (DrawObject obj : board.getObjects()) {
+      if (!ids.contains(obj.getId())) continue;
+
+      Instant objTs = obj.getPositionTimestamp() != null
+          ? obj.getPositionTimestamp()
+          : Instant.EPOCH;
+
+      if (opTs.isBefore(objTs)) continue;
+
+      List<com.example.miro.board.entities.Point> moved = obj.getPoints().stream()
+          .map(p -> new com.example.miro.board.entities.Point(
+              p.x() + op.dx(),
+              p.y() + op.dy()
+          ))
+          .toList();
+
+      obj.setPoints(moved);
+      obj.setPositionTimestamp(opTs);
     }
   }
 
