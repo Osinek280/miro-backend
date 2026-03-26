@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface DrawObjectRepository extends JpaRepository<DrawObject, String> {
+public interface DrawObjectRepository extends JpaRepository<DrawObject, UUID> {
   @Query("SELECT o FROM DrawObject o WHERE o.board.id = :boardId AND o.tombstone = false")
   List<DrawObject> findLiveByBoardId(@Param("boardId") UUID boardId);
 }

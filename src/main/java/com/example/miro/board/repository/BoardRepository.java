@@ -1,16 +1,14 @@
 package com.example.miro.board.repository;
 
 import com.example.miro.board.entities.Board;
-import com.example.miro.user.AppUser;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BoardRepository extends JpaRepository<Board, UUID> {
-//  List<Board> findByOwner(AppUser owner);
-//
-//  Page<Board> findAll(Pageable pageable);
+@Query("SELECT b FROM Board b LEFT JOIN FETCH b.objects WHERE b.id = :id")
+Optional<Board> findWithObjectsById(@Param("id") UUID id);
 }

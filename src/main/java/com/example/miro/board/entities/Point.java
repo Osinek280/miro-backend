@@ -1,3 +1,5 @@
 package com.example.miro.board.entities;
 
-public record Point(double x, double y) {}
+import java.io.Serializable;
+
+public record Point(double x, double y) implements Serializable {}

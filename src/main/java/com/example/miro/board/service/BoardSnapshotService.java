@@ -3,23 +3,32 @@ package com.example.miro.board.service;
 import com.example.miro.board.dto.BoardSnapshotDto;
 import com.example.miro.board.dto.CameraDto;
 import com.example.miro.board.dto.DrawObjectDto;
+import com.example.miro.board.dto.OperationDto;
+import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.DrawObject;
+import com.example.miro.board.entities.DrawObjectType;
 import com.example.miro.board.repository.BoardMemberRepository;
+import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.board.repository.DrawObjectRepository;
+import com.example.miro.board.utils.WireCodec;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class BoardSnapshotService {
   private final DrawObjectRepository drawObjectRepository;
   private final BoardMemberRepository memberRepository;
+  private final ObjectMapper objectMapper;
+  private final BoardRepository boardRepository;
 
   public BoardSnapshotDto getSnapshot(UUID boardId, UUID userId) {
     BoardMember member = getMember(boardId, userId);
@@ -35,6 +44,75 @@ public class BoardSnapshotService {
     return new BoardSnapshotDto(boardId, Instant.now(), objects, camera);
   }
 
+  @Transactional
+  public void applyOperation(UUID boardId, byte[] payload) {
+    OperationDto op;
+    try {
+      op = objectMapper.readValue(payload, OperationDto.class);
+      System.out.println(op);
+    } catch (Exception e) {
+      System.out.println("Failed to deserialize operation for board " + boardId + ": " + e.getMessage());
+      return;
+    }
+
+    Board board = boardRepository.findWithObjectsById(boardId)
+        .orElseThrow(() -> new NoSuchElementException("Board not found: " + boardId));
+
+    applyToBoard(board, op);
+    boardRepository.save(board);
+  }
+
+  private void applyToBoard(Board board, OperationDto op) {
+    if (op instanceof OperationDto.AddOp add) {
+      applyAdd(board, add);
+    }
+//    } else if (op instanceof OperationDto.RemoveOp remove) {
+//      applyRemove(board, remove);
+//    } else if (op instanceof OperationDto.TranslateOp trans) {
+//      applyTranslate(board, trans);
+//    } else if (op instanceof OperationDto.BatchOp batch) {
+//      flattenBatch(batch).forEach(child -> applyToBoard(board, child));
+//    } else {
+//      throw new IllegalArgumentException("Unknown operation type: " + op.getClass());
+//    }
+  }
+
+  private void applyAdd(Board board, OperationDto.AddOp op) {
+    Map<UUID, DrawObject> existing = new HashMap<>();
+    for (DrawObject o : board.getObjects()) {
+      existing.put(o.getId(), o);
+    }
+
+    for (var wire : op.objects()) {
+      UUID id = wire.id();
+      List<com.example.miro.board.entities.Point> points =
+          WireCodec.decodePoints(wire.pointsEncoded());
+
+      if (existing.containsKey(id)) {
+        DrawObject obj = existing.get(id);
+        obj.setPoints(points);
+        obj.setColor(wire.color());
+        obj.setSize(wire.size());
+        obj.setTombstone(false);
+        obj.setPositionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()));
+      } else {
+        DrawObject obj = DrawObject.builder()
+            .id(id)
+            .board(board)
+            .type(com.example.miro.board.entities.DrawObjectType
+                .valueOf(wire.type().toUpperCase()))
+            .points(points)
+            .color(wire.color())
+            .size(wire.size())
+            .tombstone(false)
+            .positionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()))
+            .build();
+        board.getObjects().add(obj);
+        existing.put(id, obj);
+      }
+    }
+  }
+
   private BoardMember getMember(UUID boardId, UUID userId) {
     return memberRepository.findByBoardIdAndUserId(boardId, userId)
         .orElseThrow(() -> new AccessDeniedException("Not a member of board: " + boardId));
@@ -43,7 +121,7 @@ public class BoardSnapshotService {
   private DrawObjectDto toDto(DrawObject e) {
     return new DrawObjectDto(
         e.getId(),
-        e.getType().name().toLowerCase(),
+        e.getType(),
         e.getPoints(),
         e.getColor(),
         e.getSize(),

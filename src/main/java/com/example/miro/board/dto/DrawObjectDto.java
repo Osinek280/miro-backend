@@ -1,5 +1,6 @@
 package com.example.miro.board.dto;
 
+import com.example.miro.board.entities.DrawObjectType;
 import com.example.miro.board.entities.Point;
 
 import java.time.Instant;
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 public record DrawObjectDto(
     UUID id,
-    String type,
+    DrawObjectType type,
     List<Point> points,
     String color,
     int size,
