@@ -32,6 +32,15 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
+  public UUID extractUserId(String token) {
+    Claims claims = extractALlClaims(token);
+    Object rawUserId = claims.get("userId");
+    if (rawUserId == null) {
+      throw new IllegalArgumentException("Token missing userId claim");
+    }
+    return UUID.fromString(rawUserId.toString());
+  }
+
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractALlClaims(token);
     return claimsResolver.apply(claims);
