@@ -20,6 +20,7 @@ public sealed interface OperationDto permits
 {
   String opId();
   long timestamp();
+  String userId();
 
   record DrawObjectWireDto(
       UUID id,
@@ -34,18 +35,21 @@ public sealed interface OperationDto permits
   record AddOp(
       String opId,
       long timestamp,
+      String userId,
       List<DrawObjectWireDto> objects
   ) implements OperationDto {}
 
   record RemoveOp(
       String opId,
       long timestamp,
+      String userId,
       List<UUID> ids
   ) implements OperationDto {}
 
   record TranslateOp(
       String opId,
       long timestamp,
+      String userId,
       List<UUID> ids,
       double dx,
       double dy
@@ -54,6 +58,7 @@ public sealed interface OperationDto permits
   record BatchOp(
       String opId,
       long timestamp,
+      String userId,
       List<OperationDto> operations
   ) implements OperationDto {}
 }

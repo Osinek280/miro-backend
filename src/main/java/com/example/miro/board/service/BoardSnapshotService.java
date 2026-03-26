@@ -7,7 +7,6 @@ import com.example.miro.board.dto.OperationDto;
 import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.DrawObject;
-import com.example.miro.board.entities.DrawObjectType;
 import com.example.miro.board.repository.BoardMemberRepository;
 import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.board.repository.DrawObjectRepository;
