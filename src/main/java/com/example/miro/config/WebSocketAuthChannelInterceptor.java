@@ -2,7 +2,6 @@ package com.example.miro.config;
 
 import com.example.miro.auth.service.JwtService;
 import com.example.miro.board.entities.BoardMember;
-import com.example.miro.board.entities.Role;
 import com.example.miro.board.repository.BoardMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
@@ -19,9 +18,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
 
   private static final Pattern BOARD_DESTINATION_PATTERN =
       Pattern.compile("^/(app|topic)/(draw|cursor)/([0-9a-fA-F\\-]{36})$");
+
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
   private final BoardMemberRepository boardMemberRepository;
@@ -41,21 +43,33 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
       return message;
     }
 
-    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-      authenticateConnection(accessor);
-      return message;
-    }
-
-    if (StompCommand.SEND.equals(accessor.getCommand())
-        || StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-      requireAuthenticatedUser(accessor.getUser());
-      authorizeBoardAccess(accessor);
+    switch (accessor.getCommand()) {
+      case CONNECT -> {
+        // the only place where we access DB and validate JWT
+        authenticateAndLoadRoles(accessor);
+      }
+      case SUBSCRIBE -> {
+        // only checking principal — no DB access
+        WsUserPrincipal principal = extractPrincipal(accessor.getUser());
+        checkBoardAccess(principal, accessor.getDestination(), false);
+      }
+      case SEND -> {
+        // only checking principal — no DB access
+        WsUserPrincipal principal = extractPrincipal(accessor.getUser());
+        checkBoardAccess(principal, accessor.getDestination(), true);
+      }
+      default -> {
+        // DISCONNECT, UNSUBSCRIBE etc. — just pass through
+      }
     }
 
     return message;
   }
 
-  private void authenticateConnection(StompHeaderAccessor accessor) {
+  // -------------------------------------------------------------------------
+  // CONNECT — the only moment with DB access
+  // -------------------------------------------------------------------------
+  private void authenticateAndLoadRoles(StompHeaderAccessor accessor) {
     String authHeader = accessor.getFirstNativeHeader("Authorization");
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       throw new AccessDeniedException("Missing or invalid Authorization header");
@@ -77,7 +91,17 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
     }
 
     UUID userId = jwtService.extractUserId(jwt);
+
+    Map<UUID, com.example.miro.board.entities.Role> boardRoles =
+        boardMemberRepository.findAllByUserId(userId)
+            .stream()
+            .collect(Collectors.toMap(
+                m -> m.getBoard().getId(),
+                BoardMember::getRole
+            ));
+
     WsUserPrincipal principal = new WsUserPrincipal(userId, email);
+    principal.loadBoardRoles(boardRoles);
 
     UsernamePasswordAuthenticationToken auth =
         new UsernamePasswordAuthenticationToken(
@@ -88,43 +112,31 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
     accessor.setUser(auth);
   }
 
-  private void requireAuthenticatedUser(Principal principal) {
-    if (!(principal instanceof Authentication authentication)
-        || !authentication.isAuthenticated()) {
-      throw new AccessDeniedException("Unauthorized WebSocket action");
-    }
-  }
-
-  private void authorizeBoardAccess(StompHeaderAccessor accessor) {
-    String destination = accessor.getDestination();
-    if (destination == null) {
-      return;
-    }
+  private void checkBoardAccess(WsUserPrincipal principal, String destination, boolean requireWrite) {
+    if (destination == null) return;
 
     Matcher matcher = BOARD_DESTINATION_PATTERN.matcher(destination);
     if (!matcher.matches()) {
-      return;
+      // nieznany destination — blokujemy
+      throw new AccessDeniedException("Nieznany destination: " + destination);
     }
 
-    String boardIdRaw = matcher.group(3);
-    UUID boardId = UUID.fromString(boardIdRaw);
-    UUID userId = extractUserIdFromPrincipal(accessor.getUser());
+    UUID boardId = UUID.fromString(matcher.group(3));
 
-    BoardMember member = boardMemberRepository
-        .findByBoardIdAndUserId(boardId, userId)
-        .orElseThrow(() -> new AccessDeniedException("No access to board"));
+    if (!principal.hasAccess(boardId)) {
+      throw new AccessDeniedException("Brak dostępu do boardu: " + boardId);
+    }
 
-    if (StompCommand.SEND.equals(accessor.getCommand())
-        && member.getRole() == Role.VIEWER) {
-      throw new AccessDeniedException("Insufficient permissions for write action");
+    if (requireWrite && !principal.canWrite(boardId)) {
+      throw new AccessDeniedException("VIEWER nie może wysyłać wiadomości na board: " + boardId);
     }
   }
 
-  private UUID extractUserIdFromPrincipal(Principal principal) {
-    if (!(principal instanceof Authentication authentication)
-        || !(authentication.getPrincipal() instanceof WsUserPrincipal wsUserPrincipal)) {
-      throw new AccessDeniedException("Unauthorized WebSocket action");
+  private WsUserPrincipal extractPrincipal(Principal rawPrincipal) {
+    if (!(rawPrincipal instanceof Authentication auth)
+        || !(auth.getPrincipal() instanceof WsUserPrincipal principal)) {
+      throw new AccessDeniedException("Nieautoryzowane połączenie WebSocket");
     }
-    return wsUserPrincipal.getUserId();
+    return principal;
   }
 }
