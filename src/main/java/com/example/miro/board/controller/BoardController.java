@@ -55,6 +55,14 @@ public class BoardController {
     return ResponseEntity.noContent().build();
   }
 
+  @PostMapping("/{boardId}/camera")
+  public ResponseEntity<Void> camera(@PathVariable UUID boardId,
+                                     @RequestBody CameraDto camera,
+                                     @AuthenticationPrincipal AppUser user) {
+    boardService.saveCamera(boardId, user.getId(), camera);
+    return ResponseEntity.noContent().build();
+  }
+
   @GetMapping("/{boardId}/snapshot")
   public ResponseEntity<BoardSnapshotDto> getSnapshot(@PathVariable UUID boardId,
                                                       @AuthenticationPrincipal AppUser user) {
