@@ -44,9 +44,6 @@ public class DrawObject {
   @Column(nullable = false)
   private int size;
 
-  @Column(nullable = false)
-  private boolean tombstone = false;
-
   private Instant positionTimestamp;
 
   @Type(JsonType.class)

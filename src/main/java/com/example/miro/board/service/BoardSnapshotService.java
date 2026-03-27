@@ -106,7 +106,6 @@ public class BoardSnapshotService {
         obj.setPoints(points);
         obj.setColor(wire.color());
         obj.setSize(wire.size());
-        obj.setTombstone(false);
         obj.setPositionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()));
       } else {
         DrawObject obj = DrawObject.builder()
@@ -117,7 +116,6 @@ public class BoardSnapshotService {
             .points(points)
             .color(wire.color())
             .size(wire.size())
-            .tombstone(false)
             .positionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()))
             .build();
         board.getObjects().add(obj);
@@ -130,11 +128,7 @@ public class BoardSnapshotService {
 
   private void applyRemove(Board board, OperationDto.RemoveOp op) {
     Set<UUID> ids = new HashSet<>(op.ids());
-    for (DrawObject obj : board.getObjects()) {
-      if (ids.contains(obj.getId())) {
-        obj.setTombstone(true);
-      }
-    }
+    board.getObjects().removeIf(obj -> ids.contains(obj.getId()));
   }
 
   // ─── TRANSLATE (LWW) ─────────────────────────────────────────────────────
@@ -176,7 +170,7 @@ public class BoardSnapshotService {
         e.getPoints(),
         e.getColor(),
         e.getSize(),
-        e.isTombstone(),
+        false,
         e.getPositionTimestamp()
     );
   }
