@@ -1,6 +1,7 @@
 package com.example.miro.board.service;
 
-import com.example.miro.board.dto.BoardViewDto;
+import com.example.miro.board.dto.board.BoardViewDto;
+import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.Role;
@@ -70,6 +71,7 @@ public class BoardService {
             .cameraX(0.0)
             .cameraY(0.0)
             .zoom(1.0)
+            .joinedAt(Instant.now())
             .lastOpenedAt(Instant.now())
             .build()
     );
@@ -77,19 +79,18 @@ public class BoardService {
     return board.getId();
   }
 
-  public BoardViewDto openBoard(UUID boardId, AppUser user,
-                                double x, double y, double zoom) {
+  public void saveCamera(UUID boardId, UUID userId, CameraDto camera) {
 
     BoardMember member = memberRepo
-        .findByBoardIdAndUser(boardId, user)
+        .findByBoardIdAndUserId(boardId, userId)
         .orElseThrow(() -> new RuntimeException("No access"));
 
     member.setLastOpenedAt(Instant.now());
-    member.setCameraX(x);
-    member.setCameraY(y);
-    member.setZoom(zoom);
+    member.setCameraX(camera.offsetX());
+    member.setCameraY(camera.offsetY());
+    member.setZoom(camera.zoom());
 
-    return toDto(member);
+    memberRepo.save(member);
   }
 
 

@@ -15,6 +15,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -31,12 +32,21 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
+  public UUID extractUserId(String token) {
+    Claims claims = extractALlClaims(token);
+    Object rawUserId = claims.get("userId");
+    if (rawUserId == null) {
+      throw new IllegalArgumentException("Token missing userId claim");
+    }
+    return UUID.fromString(rawUserId.toString());
+  }
+
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractALlClaims(token);
     return claimsResolver.apply(claims);
   }
 
-  public String generateToken(String email, Integer userId) {
+  public String generateToken(String email, UUID userId) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + 1000 * 60 * 24);
 

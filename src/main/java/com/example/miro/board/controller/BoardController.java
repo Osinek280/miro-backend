@@ -1,10 +1,12 @@
 package com.example.miro.board.controller;
 
-import com.example.miro.board.dto.BoardViewDto;
-import com.example.miro.board.dto.CameraRequest;
-import com.example.miro.board.dto.CreateBoardRequest;
-import com.example.miro.board.dto.RenameBoardRequest;
+import com.example.miro.board.dto.board.BoardSnapshotDto;
+import com.example.miro.board.dto.board.BoardViewDto;
+import com.example.miro.board.dto.board.CreateBoardRequest;
+import com.example.miro.board.dto.board.RenameBoardRequest;
+import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.service.BoardService;
+import com.example.miro.board.service.BoardSnapshotService;
 import com.example.miro.user.AppUser;
 import com.example.miro.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class BoardController {
   private final BoardService boardService;
   private final UserRepository userRepository;
+  private final BoardSnapshotService boardSnapshotService;
 
   @GetMapping
   public List<BoardViewDto> myBoards(@AuthenticationPrincipal UserDetails userDetails) {
@@ -56,15 +59,17 @@ public class BoardController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/{id}/open")
-  public BoardViewDto open(
-      @PathVariable UUID id,
-      @RequestBody CameraRequest camera,
-      @AuthenticationPrincipal AppUser user
-  ) {
-    return boardService.openBoard(
-        id, user,
-        camera.x(), camera.y(), camera.zoom()
-    );
+  @PostMapping("/{boardId}/camera")
+  public ResponseEntity<Void> camera(@PathVariable UUID boardId,
+                                     @RequestBody CameraDto camera,
+                                     @AuthenticationPrincipal AppUser user) {
+    boardService.saveCamera(boardId, user.getId(), camera);
+    return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{boardId}/snapshot")
+  public ResponseEntity<BoardSnapshotDto> getSnapshot(@PathVariable UUID boardId,
+                                                      @AuthenticationPrincipal AppUser user) {
+    return ResponseEntity.ok(boardSnapshotService.getSnapshot(boardId, user.getId()));
   }
 }
