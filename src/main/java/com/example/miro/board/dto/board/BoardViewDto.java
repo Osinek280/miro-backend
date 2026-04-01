@@ -1,4 +1,4 @@
-package com.example.miro.board.dto;
+package com.example.miro.board.dto.board;
 
 import com.example.miro.board.entities.Role;
 

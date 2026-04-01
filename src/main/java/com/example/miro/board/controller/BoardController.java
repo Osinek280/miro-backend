@@ -1,6 +1,10 @@
 package com.example.miro.board.controller;
 
-import com.example.miro.board.dto.*;
+import com.example.miro.board.dto.board.BoardSnapshotDto;
+import com.example.miro.board.dto.board.BoardViewDto;
+import com.example.miro.board.dto.board.CreateBoardRequest;
+import com.example.miro.board.dto.board.RenameBoardRequest;
+import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.service.BoardService;
 import com.example.miro.board.service.BoardSnapshotService;
 import com.example.miro.user.AppUser;

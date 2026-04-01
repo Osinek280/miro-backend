@@ -1,4 +1,4 @@
-package com.example.miro.board.dto;
+package com.example.miro.board.dto.camera;
 
 public record CameraDto(
     double offsetX,

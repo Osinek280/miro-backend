@@ -1,4 +1,4 @@
-package com.example.miro.board.dto;
+package com.example.miro.board.dto.drawing;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

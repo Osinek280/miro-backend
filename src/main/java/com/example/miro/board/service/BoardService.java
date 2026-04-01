@@ -1,7 +1,7 @@
 package com.example.miro.board.service;
 
-import com.example.miro.board.dto.BoardViewDto;
-import com.example.miro.board.dto.CameraDto;
+import com.example.miro.board.dto.board.BoardViewDto;
+import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.Role;

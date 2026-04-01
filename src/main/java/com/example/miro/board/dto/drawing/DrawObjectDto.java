@@ -1,4 +1,4 @@
-package com.example.miro.board.dto;
+package com.example.miro.board.dto.drawing;
 
 import com.example.miro.board.entities.DrawObjectType;
 import com.example.miro.board.entities.Point;

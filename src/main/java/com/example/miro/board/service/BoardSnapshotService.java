@@ -1,9 +1,9 @@
 package com.example.miro.board.service;
 
-import com.example.miro.board.dto.BoardSnapshotDto;
-import com.example.miro.board.dto.CameraDto;
-import com.example.miro.board.dto.DrawObjectDto;
-import com.example.miro.board.dto.OperationDto;
+import com.example.miro.board.dto.board.BoardSnapshotDto;
+import com.example.miro.board.dto.camera.CameraDto;
+import com.example.miro.board.dto.drawing.DrawObjectDto;
+import com.example.miro.board.dto.drawing.OperationDto;
 import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.DrawObject;
