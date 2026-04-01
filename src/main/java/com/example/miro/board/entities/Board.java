@@ -1,5 +1,6 @@
 package com.example.miro.board.entities;
 
+import com.example.miro.board.entities.equation.Equation;
 import com.example.miro.user.AppUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -46,4 +47,7 @@ public class Board {
 
   @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<DrawObject> objects = new ArrayList<>();
+
+  @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Equation> equations = new ArrayList<>();
 }
