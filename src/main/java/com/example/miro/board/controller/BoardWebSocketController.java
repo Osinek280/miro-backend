@@ -1,6 +1,7 @@
 package com.example.miro.board.controller;
 
 import com.example.miro.board.service.BoardSnapshotService;
+import com.example.miro.board.service.EquationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,6 +16,8 @@ import java.util.UUID;
 public class BoardWebSocketController {
 
   private final BoardSnapshotService boardSnapshotService;
+  private final EquationService equationService;
+
   @MessageMapping("/draw/{boardId}")
   @SendTo("/topic/draw/{boardId}")
   public byte[] draw(@DestinationVariable UUID boardId,
@@ -36,7 +39,8 @@ public class BoardWebSocketController {
   @SendTo("/topic/equation/{boardId}")
   public byte[] equation(@DestinationVariable UUID boardId,
                      byte[] payload,
-                     Principal principal) {
+                     Principal principal) throws Exception {
+    equationService.saveEquation(boardId, payload);
     return payload;
   }
 }
