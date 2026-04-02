@@ -28,8 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
 
+  private static final String[] CHANNELS = {"draw", "cursor", "equation"};
+
   private static final Pattern BOARD_DESTINATION_PATTERN =
-      Pattern.compile("^/(app|topic)/(draw|cursor)/([0-9a-fA-F\\-]{36})$");
+      Pattern.compile("^/(app|topic)/(" + String.join("|", CHANNELS) + ")/([0-9a-fA-F\\-]{36})$");
 
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
@@ -117,7 +119,6 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
 
     Matcher matcher = BOARD_DESTINATION_PATTERN.matcher(destination);
     if (!matcher.matches()) {
-      // nieznany destination — blokujemy
       throw new AccessDeniedException("Nieznany destination: " + destination);
     }
 

@@ -31,4 +31,12 @@ public class BoardWebSocketController {
                      byte[] payload) {
     return payload;
   }
+
+  @MessageMapping("/equation/{boardId}")
+  @SendTo("/topic/equation/{boardId}")
+  public byte[] equation(@DestinationVariable UUID boardId,
+                     byte[] payload,
+                     Principal principal) {
+    return payload;
+  }
 }

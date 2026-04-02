@@ -22,7 +22,6 @@ import java.util.UUID;
 )
 public class Equation {
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
   private String expr;
   @Embedded
