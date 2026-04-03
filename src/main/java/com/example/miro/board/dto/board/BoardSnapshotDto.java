@@ -2,6 +2,7 @@ package com.example.miro.board.dto.board;
 
 import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.dto.drawing.DrawObjectDto;
+import com.example.miro.board.dto.equation.EquationDto;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,6 +12,7 @@ public record BoardSnapshotDto(
     UUID boardId,
     Instant serverTimestamp,
     List<DrawObjectDto> objects,
-    CameraDto camera
+    CameraDto camera,
+    List<EquationDto> equations
 ) {
 }

@@ -4,12 +4,17 @@ import com.example.miro.board.dto.board.BoardSnapshotDto;
 import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.dto.drawing.DrawObjectDto;
 import com.example.miro.board.dto.drawing.OperationDto;
+import com.example.miro.board.dto.equation.ColorDto;
+import com.example.miro.board.dto.equation.EquationDto;
 import com.example.miro.board.entities.Board;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.DrawObject;
+import com.example.miro.board.entities.equation.Color;
+import com.example.miro.board.entities.equation.Equation;
 import com.example.miro.board.repository.BoardMemberRepository;
 import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.board.repository.DrawObjectRepository;
+import com.example.miro.board.repository.EquationRepository;
 import com.example.miro.board.utils.WireCodec;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +33,7 @@ public class BoardSnapshotService {
   private final BoardMemberRepository memberRepository;
   private final ObjectMapper objectMapper;
   private final BoardRepository boardRepository;
+  private final EquationRepository equationRepository;
 
   public BoardSnapshotDto getSnapshot(UUID boardId, UUID userId) {
     BoardMember member = getMember(boardId, userId);
@@ -38,9 +44,16 @@ public class BoardSnapshotService {
         .map(this::toDto)
         .toList();
 
+    List<EquationDto> equations = equationRepository
+        .findByBoardId(boardId)
+        .stream()
+        .map(this::toDto)
+        .toList();
+
+
     CameraDto camera = new CameraDto(member.getCameraX(), member.getCameraY(), member.getZoom());
 
-    return new BoardSnapshotDto(boardId, Instant.now(), objects, camera);
+    return new BoardSnapshotDto(boardId, Instant.now(), objects, camera, equations);
   }
 
   @Transactional
@@ -161,6 +174,15 @@ public class BoardSnapshotService {
   private BoardMember getMember(UUID boardId, UUID userId) {
     return memberRepository.findByBoardIdAndUserId(boardId, userId)
         .orElseThrow(() -> new AccessDeniedException("Not a member of board: " + boardId));
+  }
+
+  private EquationDto toDto(Equation equation) {
+//    Color color = equation.getColor();
+    return new EquationDto(
+        equation.getId(),
+        equation.getExpr()
+//        new ColorDto(color.getR(), color.getG(), color.getB(), color.getA())
+    );
   }
 
   private DrawObjectDto toDto(DrawObject e) {
