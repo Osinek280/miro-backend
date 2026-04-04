@@ -12,8 +12,6 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-  @Value("${app.cors.allowed-origins}")
-  private List<String> allowedOrigins;
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
