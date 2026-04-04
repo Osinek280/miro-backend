@@ -50,7 +50,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   private String[] parseAllowedOriginPatterns() {
-    String allowedOriginPatterns = "http://localhost:5173,http://miro-backend-twdw.onrender.com";
+    String allowedOriginPatterns = "http://localhost:5173,https://miro-cyan.vercel.app";
     return Arrays.stream(allowedOriginPatterns.split(","))
         .map(String::trim)
         .filter(value -> !value.isBlank())
