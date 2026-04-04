@@ -1,7 +1,6 @@
 package com.example.miro.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -19,8 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   private final WebSocketAuthChannelInterceptor webSocketAuthChannelInterceptor;
-  @Value("${app.websocket.allowed-origin-patterns:http://localhost:5173}")
-  private String allowedOriginPatterns;
 
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
@@ -53,6 +50,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   private String[] parseAllowedOriginPatterns() {
+    String allowedOriginPatterns = "http://localhost:5173,http://miro-backend-twdw.onrender.com";
     return Arrays.stream(allowedOriginPatterns.split(","))
         .map(String::trim)
         .filter(value -> !value.isBlank())
