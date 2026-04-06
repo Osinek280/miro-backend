@@ -10,12 +10,16 @@ import java.util.UUID;
     @JsonSubTypes.Type(value = OperationDto.AddOp.class,       name = "add"),
     @JsonSubTypes.Type(value = OperationDto.RemoveOp.class,    name = "remove"),
     @JsonSubTypes.Type(value = OperationDto.TranslateOp.class, name = "translate"),
+    @JsonSubTypes.Type(value = OperationDto.ScaleBoundsOp.class, name = "scaleBounds"),
+    @JsonSubTypes.Type(value = OperationDto.RotateOp.class,    name = "rotate"),
     @JsonSubTypes.Type(value = OperationDto.BatchOp.class,     name = "batch"),
 })
 public sealed interface OperationDto permits
     OperationDto.AddOp,
     OperationDto.RemoveOp,
     OperationDto.TranslateOp,
+    OperationDto.ScaleBoundsOp,
+    OperationDto.RotateOp,
     OperationDto.BatchOp
 {
   String opId();
@@ -59,6 +63,36 @@ public sealed interface OperationDto permits
       List<UUID> ids,
       double dx,
       double dy
+  ) implements OperationDto {}
+
+  record BoundsRect(
+      double minX,
+      double minY,
+      double maxX,
+      double maxY
+  ) {}
+
+  record OpPoint(
+      double x,
+      double y
+  ) {}
+
+  record ScaleBoundsOp(
+      String opId,
+      long timestamp,
+      String userId,
+      List<UUID> ids,
+      BoundsRect oldBounds,
+      BoundsRect newBounds
+  ) implements OperationDto {}
+
+  record RotateOp(
+      String opId,
+      long timestamp,
+      String userId,
+      List<UUID> ids,
+      OpPoint center,
+      double deltaRadians
   ) implements OperationDto {}
 
   record BatchOp(
