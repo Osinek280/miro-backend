@@ -27,7 +27,6 @@ import java.util.UUID;
 public class DrawObject {
 
   @Id
-//  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -38,16 +37,20 @@ public class DrawObject {
   @Column(nullable = false)
   private DrawObjectType type;
 
-  @Column(nullable = false)
-  private String color;
-
-  @Column(nullable = false)
-  private int size;
-
   private Instant positionTimestamp;
 
   @Type(JsonType.class)
   @Column(columnDefinition = "jsonb", nullable = false)
-  @Builder.Default
-  private List<Point> points = new ArrayList<>();
+  private DrawObjectData data;
+
+//  @Column(nullable = false)
+//  private int size;
+//
+//  @Column(nullable = false)
+//  private String color;
+//
+//  @Type(JsonType.class)
+//  @Column(columnDefinition = "jsonb", nullable = false)
+//  @Builder.Default
+//  private List<Point> points = new ArrayList<>();
 }

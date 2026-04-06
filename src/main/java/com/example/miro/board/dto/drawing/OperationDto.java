@@ -27,7 +27,13 @@ public sealed interface OperationDto permits
       String type,
       String pointsEncoded,   // base64 Int32 delta pairs
       String color,
-      int size,
+      Integer size,
+      Double x,
+      Double y,
+      Double width,
+      Double height,
+      Double rotation,
+      String src,
       boolean tombstone,
       long positionTimestamp
   ) {}

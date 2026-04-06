@@ -4,9 +4,7 @@ import com.example.miro.board.dto.board.BoardSnapshotDto;
 import com.example.miro.board.dto.camera.CameraDto;
 import com.example.miro.board.dto.drawing.DrawObjectDto;
 import com.example.miro.board.dto.drawing.OperationDto;
-import com.example.miro.board.entities.Board;
-import com.example.miro.board.entities.BoardMember;
-import com.example.miro.board.entities.DrawObject;
+import com.example.miro.board.entities.*;
 import com.example.miro.board.repository.BoardMemberRepository;
 import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.board.repository.DrawObjectRepository;
@@ -16,14 +14,18 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class BoardSnapshotService {
+  private static final Logger log = LoggerFactory.getLogger(BoardSnapshotService.class);
   private final DrawObjectRepository drawObjectRepository;
   private final BoardMemberRepository memberRepository;
   private final ObjectMapper objectMapper;
@@ -33,7 +35,7 @@ public class BoardSnapshotService {
     BoardMember member = getMember(boardId, userId);
 
     List<DrawObjectDto> objects = drawObjectRepository
-        .findLiveByBoardId(boardId)
+        .findAllByBoardId(boardId)
         .stream()
         .map(this::toDto)
         .toList();
@@ -48,9 +50,8 @@ public class BoardSnapshotService {
     OperationDto op;
     try {
       op = objectMapper.readValue(payload, OperationDto.class);
-      System.out.println(op);
     } catch (Exception e) {
-      System.out.println("Failed to deserialize operation for board " + boardId + ": " + e.getMessage());
+      log.warn("Failed to deserialize operation for board {}: {}", boardId, e.getMessage());
       return;
     }
 
@@ -91,32 +92,34 @@ public class BoardSnapshotService {
 
 
   private void applyAdd(Board board, OperationDto.AddOp op) {
-    Map<UUID, DrawObject> existing = new HashMap<>();
-    for (DrawObject o : board.getObjects()) {
-      existing.put(o.getId(), o);
-    }
+    Map<UUID, DrawObject> existing = board.getObjects().stream()
+        .collect(Collectors.toMap(DrawObject::getId, o -> o));
 
     for (var wire : op.objects()) {
       UUID id = wire.id();
-      List<com.example.miro.board.entities.Point> points =
-          WireCodec.decodePoints(wire.pointsEncoded());
+      DrawObjectType type = parseType(wire.type());
+      DrawObjectData data = toData(wire);
+      Instant incomingTs = toInstant(wire.positionTimestamp());
 
       if (existing.containsKey(id)) {
         DrawObject obj = existing.get(id);
-        obj.setPoints(points);
-        obj.setColor(wire.color());
-        obj.setSize(wire.size());
-        obj.setPositionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()));
+
+        Instant currentTs = obj.getPositionTimestamp() != null
+            ? obj.getPositionTimestamp()
+            : Instant.EPOCH;
+
+        if (incomingTs.isBefore(currentTs)) continue;
+
+        obj.setType(type);
+        obj.setData(data);
+        obj.setPositionTimestamp(toInstant(wire.positionTimestamp()));
       } else {
         DrawObject obj = DrawObject.builder()
             .id(id)
             .board(board)
-            .type(com.example.miro.board.entities.DrawObjectType
-                .valueOf(wire.type().toUpperCase()))
-            .points(points)
-            .color(wire.color())
-            .size(wire.size())
-            .positionTimestamp(Instant.ofEpochMilli(wire.positionTimestamp()))
+            .type(type)
+            .data(data)
+            .positionTimestamp(toInstant(wire.positionTimestamp()))
             .build();
         board.getObjects().add(obj);
         existing.put(id, obj);
@@ -146,14 +149,30 @@ public class BoardSnapshotService {
 
       if (opTs.isBefore(objTs)) continue;
 
-      List<com.example.miro.board.entities.Point> moved = obj.getPoints().stream()
-          .map(p -> new com.example.miro.board.entities.Point(
-              p.x() + op.dx(),
-              p.y() + op.dy()
-          ))
-          .toList();
+      DrawObjectData moved;
+      DrawObjectData currentData = obj.getData();
+      if (currentData instanceof PathData p) {
+        moved = new PathData(
+            p.points().stream()
+                .map(pt -> new Point(pt.x() + op.dx(), pt.y() + op.dy()))
+                .toList(),
+            p.color(),
+            p.size()
+        );
+      } else if (currentData instanceof ImageData img) {
+        moved = new ImageData(
+            img.x() + op.dx(),
+            img.y() + op.dy(),
+            img.width(),
+            img.height(),
+            img.rotation(),
+            img.src()
+        );
+      } else {
+        throw new IllegalStateException("Unsupported draw object data type: " + currentData.getClass());
+      }
 
-      obj.setPoints(moved);
+      obj.setData(moved);
       obj.setPositionTimestamp(opTs);
     }
   }
@@ -163,15 +182,81 @@ public class BoardSnapshotService {
         .orElseThrow(() -> new AccessDeniedException("Not a member of board: " + boardId));
   }
 
+  private DrawObjectData toData(OperationDto.DrawObjectWireDto wire) {
+    return switch (parseType(wire.type())) {
+      case PATH -> new PathData(
+          WireCodec.decodePoints(requiredString(wire.pointsEncoded(), "pointsEncoded", wire.id())),
+          requiredString(wire.color(), "color", wire.id()),
+          requiredInteger(wire.size(), "size", wire.id())
+      );
+      case IMAGE -> new ImageData(
+          requiredDouble(wire.x(), "x", wire.id()),
+          requiredDouble(wire.y(), "y", wire.id()),
+          requiredDouble(wire.width(), "width", wire.id()),
+          requiredDouble(wire.height(), "height", wire.id()),
+          requiredDouble(wire.rotation(), "rotation", wire.id()),
+          requiredString(wire.src(), "src", wire.id())
+      );
+    };
+  }
+
+  private DrawObjectType parseType(String rawType) {
+    if (rawType == null || rawType.isBlank()) {
+      throw new IllegalArgumentException("Object type cannot be null or blank");
+    }
+    return DrawObjectType.valueOf(rawType.toUpperCase(Locale.ROOT));
+  }
+
+  private Instant toInstant(long epochMillis) {
+    return epochMillis > 0 ? Instant.ofEpochMilli(epochMillis) : Instant.EPOCH;
+  }
+
+  private double requiredDouble(Double value, String fieldName, UUID objectId) {
+    if (value == null) {
+      throw new IllegalArgumentException("Missing field '" + fieldName + "' for image object " + objectId);
+    }
+    return value;
+  }
+
+  private int requiredInteger(Integer value, String fieldName, UUID objectId) {
+    if (value == null) {
+      throw new IllegalArgumentException("Missing field '" + fieldName + "' for path object " + objectId);
+    }
+    return value;
+  }
+
+  private String requiredString(String value, String fieldName, UUID objectId) {
+    if (value == null || value.isBlank()) {
+      throw new IllegalArgumentException("Missing field '" + fieldName + "' for object " + objectId);
+    }
+    return value;
+  }
+
   private DrawObjectDto toDto(DrawObject e) {
-    return new DrawObjectDto(
-        e.getId(),
-        e.getType(),
-        e.getPoints(),
-        e.getColor(),
-        e.getSize(),
-        false,
-        e.getPositionTimestamp()
-    );
+    DrawObjectData data = e.getData();
+    if (data instanceof PathData p) {
+      return new DrawObjectDto.Path(
+          e.getId(),
+          e.getType(),
+          p.points(),
+          p.color(),
+          p.size(),
+          e.getPositionTimestamp()
+      );
+    }
+    if (data instanceof ImageData img) {
+      return new DrawObjectDto.Image(
+          e.getId(),
+          e.getType(),
+          img.x(),
+          img.y(),
+          img.width(),
+          img.height(),
+          img.rotation(),
+          img.src(),
+          e.getPositionTimestamp()
+      );
+    }
+    throw new IllegalStateException("Unsupported draw object data type: " + data.getClass());
   }
 }
