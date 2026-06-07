@@ -1,4 +1,4 @@
-package com.example.miro.security;
+package com.example.miro.security.oauth;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

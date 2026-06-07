@@ -1,7 +1,7 @@
-package com.example.miro.security;
+package com.example.miro.security.oauth;
 
-import com.example.miro.auth.service.JwtService;
-import com.example.miro.refreshToken.RefreshTokenService;
+import com.example.miro.security.jwt.JwtService;
+import com.example.miro.auth.service.RefreshTokenService;
 import com.example.miro.user.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;

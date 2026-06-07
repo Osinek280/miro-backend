@@ -1,4 +1,4 @@
-package com.example.miro.security;
+package com.example.miro.security.oauth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;

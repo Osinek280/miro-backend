@@ -1,12 +1,11 @@
-package com.example.miro.config;
+package com.example.miro.security.websocket;
 
-import com.example.miro.auth.service.JwtService;
+import com.example.miro.security.jwt.JwtService;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.repository.BoardMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;

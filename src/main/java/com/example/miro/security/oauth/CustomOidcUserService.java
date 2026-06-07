@@ -1,4 +1,4 @@
-package com.example.miro.security;
+package com.example.miro.security.oauth;
 
 import org.springframework.security.oauth2.client.oidc.userinfo.*;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;

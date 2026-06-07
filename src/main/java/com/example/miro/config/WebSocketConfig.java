@@ -1,5 +1,6 @@
 package com.example.miro.config;
 
+import com.example.miro.security.websocket.WebSocketAuthChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
