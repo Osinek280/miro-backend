@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfiguration {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
+  private final CustomOAuth2UserService oauth2UserService;
+  private final CustomOidcUserService oidcUserService;
+  private final OAuth2SuccessHandler oauth2SuccessHandler;
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
     http
@@ -29,7 +33,9 @@ public class SecurityConfiguration {
                 "/hello",
 //                "/api/boards/*/camera",
                 "/swagger-ui/**",
-                "/swagger-ui.html"
+                "/swagger-ui.html",
+                "/oauth2/**",
+                "/login/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
@@ -37,8 +43,14 @@ public class SecurityConfiguration {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .oauth2Login(oauth -> oauth
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(oauth2UserService)      // GitHub
+                .oidcUserService(oidcUserService)    // Google
+            )
+            .successHandler(oauth2SuccessHandler)
+        );
     return http.build();
   }
 }
