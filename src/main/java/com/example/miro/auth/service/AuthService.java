@@ -31,8 +31,7 @@ public class AuthService {
     }
 
     AppUser user = new AppUser();
-    user.setFirstname(request.getFirstname());
-    user.setLastname(request.getLastname());
+    user.setName(request.getName());
     user.setEmail(request.getEmail());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 

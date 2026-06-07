@@ -21,11 +21,12 @@ public class AppUser implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
-  private String firstname;
-  private String lastname;
+  private String name;
   @Column(unique = true, nullable = false)
   private String email;
   private String password;
+  @Enumerated(EnumType.STRING)
+  private AuthProvider provider;
 
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return Collections.emptyList();
