@@ -9,6 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BoardRepository extends JpaRepository<Board, UUID> {
-@Query("SELECT b FROM Board b LEFT JOIN FETCH b.objects WHERE b.id = :id")
-Optional<Board> findWithObjectsById(@Param("id") UUID id);
+  @Query("SELECT b FROM Board b LEFT JOIN FETCH b.objects WHERE b.id = :id")
+  Optional<Board> findWithObjectsById(@Param("id") UUID id);
 }

@@ -1,6 +1,7 @@
 package com.example.miro.config;
 
 import com.example.miro.user.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableJpaAuditing
 public class AppConfig {
   private final UserRepository userRepository;
+
   @Bean
   public UserDetailsService userDetailsService() {
     return username -> userRepository.findByEmail(username)

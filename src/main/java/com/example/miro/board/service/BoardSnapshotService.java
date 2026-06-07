@@ -11,14 +11,13 @@ import com.example.miro.board.repository.BoardRepository;
 import com.example.miro.board.repository.DrawObjectRepository;
 import com.example.miro.board.service.snapshot.BoardOperationApplier;
 import com.example.miro.board.service.snapshot.DrawObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 import java.time.Instant;
 import java.util.List;

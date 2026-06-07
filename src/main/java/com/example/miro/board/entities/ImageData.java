@@ -7,4 +7,5 @@ public record ImageData(
     double height,
     double rotation,
     String src
-) implements DrawObjectData {}
+) implements DrawObjectData {
+}

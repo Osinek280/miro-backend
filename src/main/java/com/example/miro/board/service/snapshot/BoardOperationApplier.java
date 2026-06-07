@@ -1,24 +1,12 @@
 package com.example.miro.board.service.snapshot;
 
 import com.example.miro.board.dto.drawing.OperationDto;
-import com.example.miro.board.entities.Board;
-import com.example.miro.board.entities.DrawObject;
-import com.example.miro.board.entities.DrawObjectData;
-import com.example.miro.board.entities.DrawObjectType;
-import com.example.miro.board.entities.ImageData;
-import com.example.miro.board.entities.PathData;
-import com.example.miro.board.entities.Point;
+import com.example.miro.board.entities.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -350,5 +338,6 @@ public class BoardOperationApplier {
     return value == null ? "" : value;
   }
 
-  private record StampedOperation(OperationDto operation, long timestamp, long order) {}
+  private record StampedOperation(OperationDto operation, long timestamp, long order) {
+  }
 }

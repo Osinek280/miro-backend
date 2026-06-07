@@ -46,7 +46,7 @@ public class BoardService {
     Board board = boardRepo.findById(boardId)
         .orElseThrow(() -> new RuntimeException("Board not found"));
 
-    if(!board.getOwner().getId().equals(user.getId())) {
+    if (!board.getOwner().getId().equals(user.getId())) {
       throw new RuntimeException("No permission");
     }
 

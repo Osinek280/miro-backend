@@ -11,7 +11,8 @@ import java.util.List;
 public class WireCodec {
   private static final double POINT_SCALE = 1000.0;
 
-  private WireCodec() {}
+  private WireCodec() {
+  }
 
   public static List<Point> decodePoints(String base64) {
     if (base64 == null || base64.isBlank()) return List.of();

@@ -1,8 +1,8 @@
 package com.example.miro.security.websocket;
 
-import com.example.miro.security.jwt.JwtService;
 import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.repository.BoardMemberRepository;
+import com.example.miro.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;

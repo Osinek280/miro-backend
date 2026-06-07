@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = DrawObjectDto.Path.class,  name = "PATH"),
+    @JsonSubTypes.Type(value = DrawObjectDto.Path.class, name = "PATH"),
     @JsonSubTypes.Type(value = DrawObjectDto.Image.class, name = "IMAGE"),
 })
 public sealed interface DrawObjectDto permits DrawObjectDto.Path, DrawObjectDto.Image {
@@ -23,7 +23,8 @@ public sealed interface DrawObjectDto permits DrawObjectDto.Path, DrawObjectDto.
       String color,
       int size,
       Instant positionTimestamp
-  ) implements DrawObjectDto {}
+  ) implements DrawObjectDto {
+  }
 
   record Image(
       UUID id,
@@ -35,5 +36,6 @@ public sealed interface DrawObjectDto permits DrawObjectDto.Path, DrawObjectDto.
       double rotation,
       String src,
       Instant positionTimestamp
-  ) implements DrawObjectDto {}
+  ) implements DrawObjectDto {
+  }
 }

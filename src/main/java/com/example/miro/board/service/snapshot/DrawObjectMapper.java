@@ -2,11 +2,7 @@ package com.example.miro.board.service.snapshot;
 
 import com.example.miro.board.dto.drawing.DrawObjectDto;
 import com.example.miro.board.dto.drawing.OperationDto;
-import com.example.miro.board.entities.DrawObject;
-import com.example.miro.board.entities.DrawObjectData;
-import com.example.miro.board.entities.DrawObjectType;
-import com.example.miro.board.entities.ImageData;
-import com.example.miro.board.entities.PathData;
+import com.example.miro.board.entities.*;
 import com.example.miro.board.utils.WireCodec;
 import org.springframework.stereotype.Component;
 

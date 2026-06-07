@@ -1,9 +1,12 @@
 package com.example.miro.security.oauth;
 
-import com.example.miro.security.jwt.JwtService;
 import com.example.miro.auth.service.RefreshTokenService;
-import com.example.miro.user.*;
-import jakarta.servlet.http.*;
+import com.example.miro.security.jwt.JwtService;
+import com.example.miro.user.AppUser;
+import com.example.miro.user.AuthProvider;
+import com.example.miro.user.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -44,14 +47,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     );
 
     AppUser user = userRepository.findByEmail(principal.getEmail())
-      .orElseGet(() -> userRepository.save(
-        AppUser.builder()
-          .email(principal.getEmail())
-          .name(principal.getName())
-          .avatarUrl(principal.getAvatarUrl())
-          .provider(AuthProvider.valueOf(provider))
-          .build()
-      ));
+        .orElseGet(() -> userRepository.save(
+            AppUser.builder()
+                .email(principal.getEmail())
+                .name(principal.getName())
+                .avatarUrl(principal.getAvatarUrl())
+                .provider(AuthProvider.valueOf(provider))
+                .build()
+        ));
 
     String accessToken = jwtService.generateToken(user.getEmail(), user.getId());
     String refreshToken = refreshTokenService.createRefreshToken(user);

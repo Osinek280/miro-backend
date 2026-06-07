@@ -25,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
   private final AuthService authService;
+
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest req) {
     AuthTokens tokens = authService.register(req);
@@ -69,7 +70,7 @@ public class AuthController {
 
   @PostMapping("/refresh")
   public ResponseEntity<Void> refreshToken(HttpServletRequest request,
-                                        HttpServletResponse response) {
+                                           HttpServletResponse response) {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       System.out.println("Cookies in request:");

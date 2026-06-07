@@ -15,6 +15,7 @@ import java.util.UUID;
 public class BoardWebSocketController {
 
   private final BoardSnapshotService boardSnapshotService;
+
   @MessageMapping("/draw/{boardId}")
   @SendTo("/topic/draw/{boardId}")
   public byte[] draw(@DestinationVariable UUID boardId,
@@ -28,7 +29,7 @@ public class BoardWebSocketController {
   @MessageMapping("/cursor/{boardId}")
   @SendTo("/topic/cursor/{boardId}")
   public byte[] cursor(@DestinationVariable String boardId,
-                     byte[] payload) {
+                       byte[] payload) {
     return payload;
   }
 }

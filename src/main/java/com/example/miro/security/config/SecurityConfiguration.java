@@ -1,9 +1,9 @@
 package com.example.miro.security.config;
 
+import com.example.miro.security.jwt.JwtAuthenticationFilter;
 import com.example.miro.security.oauth.CustomOAuth2UserService;
 import com.example.miro.security.oauth.CustomOidcUserService;
 import com.example.miro.security.oauth.OAuth2SuccessHandler;
-import com.example.miro.security.jwt.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -23,24 +24,25 @@ public class SecurityConfiguration {
   private final CustomOAuth2UserService oauth2UserService;
   private final CustomOidcUserService oidcUserService;
   private final OAuth2SuccessHandler oauth2SuccessHandler;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
     http
         .cors(cors -> cors.configurationSource(corsConfigurationSource))
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/auth/**",
-                "/ws/**",
-                "/v3/api-docs/**",
-                "/hello",
+                .requestMatchers(
+                    "/auth/**",
+                    "/ws/**",
+                    "/v3/api-docs/**",
+                    "/hello",
 //                "/api/boards/*/camera",
-                "/swagger-ui/**",
-                "/swagger-ui.html",
-                "/oauth2/**",
-                "/login/**"
-            ).permitAll()
-            .anyRequest().authenticated()
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/oauth2/**",
+                    "/login/**"
+                ).permitAll()
+                .anyRequest().authenticated()
         )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
