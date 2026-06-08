@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
         .httpOnly(true)
-        .secure(true)
+        .secure(false)
         .path("/")
         .sameSite("Lax")
         .maxAge(15 * 60) // 15 minutes
@@ -69,7 +69,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
         .httpOnly(true)
-        .secure(true)
+        .secure(false)
         .path("/")
         .sameSite("Lax")
         .maxAge(24 * 60 * 60) // 24 hours

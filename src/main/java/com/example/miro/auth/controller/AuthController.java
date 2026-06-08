@@ -1,7 +1,6 @@
 package com.example.miro.auth.controller;
 
 import com.example.miro.auth.dto.AuthTokens;
-import com.example.miro.auth.dto.AuthenticationResponse;
 import com.example.miro.auth.dto.LoginRequest;
 import com.example.miro.auth.dto.RegisterRequest;
 import com.example.miro.auth.service.AuthService;
@@ -27,45 +26,56 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/register")
-  public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest req) {
+  public ResponseEntity<Void> register(@RequestBody RegisterRequest req) {
     AuthTokens tokens = authService.register(req);
 
-    ResponseCookie jwtCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", tokens.accessToken())
         .httpOnly(true)
-        .secure(true)
+        .secure(false)
         .path("/")
         .sameSite("Lax")
-        .maxAge(24 * 60 * 60)
+        .maxAge(15 * 60) // 15 minutes
+        .build();
+
+
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(24 * 60 * 60) // 24 hours
         .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(
-            AuthenticationResponse.builder()
-                .accessToken(tokens.accessToken())
-                .build()
-        );
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .build();
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest req) {
+  public ResponseEntity<Void> login(@RequestBody LoginRequest req) {
     AuthTokens tokens = authService.login(req);
 
-    ResponseCookie jwtCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", tokens.accessToken())
         .httpOnly(true)
-        .secure(true)
+        .secure(false)
         .path("/")
         .sameSite("Lax")
-        .maxAge(24 * 60 * 60)
+        .maxAge(15 * 60) // 15 minutes
+        .build();
+
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(24 * 60 * 60) // 24 hours
         .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(
-            AuthenticationResponse.builder()
-                .accessToken(tokens.accessToken())
-                .build()
-        );
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .build();
   }
 
   @PostMapping("/refresh")
@@ -100,16 +110,41 @@ public class AuthController {
 
     ResponseCookie cookie = ResponseCookie.from("refresh_token", authResp.refreshToken())
         .httpOnly(true)
-        .secure(true)
-        .path("/api/v1/auth")
-        .maxAge(14 * 24 * 60 * 60)
-        .sameSite("Strict")
+        .secure(false)
+        .path("/")
+        .maxAge(24 * 60 * 60) // 24 hours
+        .sameSite("Lax")
         .build();
 
     System.out.println("Refresh token cookie set in response");
 
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        .build();
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<Void> logout() {
+
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", "")
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(0)
+        .build();
+
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", "")
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(0)
+        .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
         .build();
   }
 }

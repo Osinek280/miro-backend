@@ -2,6 +2,7 @@ package com.example.miro.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -34,17 +36,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     final String authHeader = request.getHeader("Authorization");
     System.out.println("Auth Header: " + authHeader);
-
-    final String jwt;
     final String userEmail;
 
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      System.out.println("No Bearer token, skipping filter");
+    String jwt = extractTokenFromCookies(request);
+
+    if (jwt == null) {
       filterChain.doFilter(request, response);
       return;
     }
-
-    jwt = authHeader.substring(7);
     userEmail = jwtService.extractUsername(jwt);
     System.out.println("Extracted email: " + userEmail);
 
@@ -74,4 +73,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  private String extractTokenFromCookies(HttpServletRequest request) {
+    if (request.getCookies() == null) {
+      System.out.println("No cookies in request");
+      return null;
+    }
+
+    System.out.println("=== COOKIES ===");
+
+    Arrays.stream(request.getCookies())
+        .forEach(cookie ->
+            System.out.println(
+                cookie.getName() + " = " + cookie.getValue()
+            )
+        );
+
+
+    return Arrays.stream(request.getCookies())
+        .filter(cookie -> "access_token".equals(cookie.getName()))
+        .map(Cookie::getValue)
+        .findFirst()
+        .orElse(null);
+  }
 }
