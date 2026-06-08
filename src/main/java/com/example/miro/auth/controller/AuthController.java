@@ -6,7 +6,6 @@ import com.example.miro.auth.dto.RegisterRequest;
 import com.example.miro.auth.dto.UserDto;
 import com.example.miro.auth.service.AuthService;
 import com.example.miro.user.AppUser;
-import com.example.miro.user.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

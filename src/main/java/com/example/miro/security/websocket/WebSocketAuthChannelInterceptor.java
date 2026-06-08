@@ -116,25 +116,26 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
 
     Matcher matcher = BOARD_DESTINATION_PATTERN.matcher(destination);
     if (!matcher.matches()) {
-      // nieznany destination — blokujemy
-      throw new AccessDeniedException("Nieznany destination: " + destination);
+      // unknown destination — blocked
+      throw new AccessDeniedException("unknown destination: " + destination);
     }
 
     UUID boardId = UUID.fromString(matcher.group(3));
 
     if (!principal.hasAccess(boardId)) {
-      throw new AccessDeniedException("Brak dostępu do boardu: " + boardId);
+      throw new AccessDeniedException("Access denied to board: " + boardId);
     }
 
     if (requireWrite && !principal.canWrite(boardId)) {
-      throw new AccessDeniedException("VIEWER nie może wysyłać wiadomości na board: " + boardId);
+      throw new AccessDeniedException(
+          "User with VIEWER role cannot send messages to board: " + boardId);
     }
   }
 
   private WsUserPrincipal extractPrincipal(Principal rawPrincipal) {
     if (!(rawPrincipal instanceof Authentication auth)
         || !(auth.getPrincipal() instanceof WsUserPrincipal principal)) {
-      throw new AccessDeniedException("Nieautoryzowane połączenie WebSocket");
+      throw new AccessDeniedException("Unauthorized WebSocket connection");
     }
     return principal;
   }
