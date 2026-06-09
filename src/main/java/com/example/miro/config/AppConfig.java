@@ -1,6 +1,6 @@
 package com.example.miro.config;
 
-import com.example.miro.user.UserRepository;
+import com.example.miro.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

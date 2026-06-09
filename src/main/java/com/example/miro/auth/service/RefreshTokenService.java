@@ -2,7 +2,7 @@ package com.example.miro.auth.service;
 
 import com.example.miro.auth.entity.RefreshToken;
 import com.example.miro.auth.repository.RefreshTokenRepository;
-import com.example.miro.user.AppUser;
+import com.example.miro.user.entity.AppUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

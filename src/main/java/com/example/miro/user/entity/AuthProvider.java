@@ -1,4 +1,4 @@
-package com.example.miro.user;
+package com.example.miro.user.entity;
 
 public enum AuthProvider {
   LOCAL,

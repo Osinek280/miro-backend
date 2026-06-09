@@ -2,9 +2,9 @@ package com.example.miro.security.oauth;
 
 import com.example.miro.auth.service.RefreshTokenService;
 import com.example.miro.security.jwt.JwtService;
-import com.example.miro.user.AppUser;
-import com.example.miro.user.AuthProvider;
-import com.example.miro.user.UserRepository;
+import com.example.miro.user.entity.AppUser;
+import com.example.miro.user.entity.AuthProvider;
+import com.example.miro.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

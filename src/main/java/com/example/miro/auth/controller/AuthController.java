@@ -3,9 +3,7 @@ package com.example.miro.auth.controller;
 import com.example.miro.auth.dto.AuthTokens;
 import com.example.miro.auth.dto.LoginRequest;
 import com.example.miro.auth.dto.RegisterRequest;
-import com.example.miro.auth.dto.UserDto;
 import com.example.miro.auth.service.AuthService;
-import com.example.miro.user.AppUser;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,11 +24,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
   private final AuthService authService;
-
-  @GetMapping("/me")
-  public UserDto me(@AuthenticationPrincipal AppUser user) {
-    return authService.me(user);
-  }
 
   @PostMapping("/register")
   public ResponseEntity<Void> register(@RequestBody RegisterRequest req) {

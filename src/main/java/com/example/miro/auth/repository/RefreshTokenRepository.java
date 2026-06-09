@@ -1,7 +1,7 @@
 package com.example.miro.auth.repository;
 
 import com.example.miro.auth.entity.RefreshToken;
-import com.example.miro.user.AppUser;
+import com.example.miro.user.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

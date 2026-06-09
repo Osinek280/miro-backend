@@ -1,7 +1,7 @@
 package com.example.miro.board.repository;
 
 import com.example.miro.board.entities.BoardMember;
-import com.example.miro.user.AppUser;
+import com.example.miro.user.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

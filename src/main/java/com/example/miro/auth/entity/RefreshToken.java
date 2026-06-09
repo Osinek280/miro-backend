@@ -1,6 +1,6 @@
 package com.example.miro.auth.entity;
 
-import com.example.miro.user.AppUser;
+import com.example.miro.user.entity.AppUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

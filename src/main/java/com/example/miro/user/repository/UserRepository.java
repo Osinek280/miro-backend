@@ -1,5 +1,6 @@
-package com.example.miro.user;
+package com.example.miro.user.repository;
 
+import com.example.miro.user.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

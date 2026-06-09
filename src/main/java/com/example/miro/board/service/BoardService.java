@@ -7,7 +7,7 @@ import com.example.miro.board.entities.BoardMember;
 import com.example.miro.board.entities.Role;
 import com.example.miro.board.repository.BoardMemberRepository;
 import com.example.miro.board.repository.BoardRepository;
-import com.example.miro.user.AppUser;
+import com.example.miro.user.entity.AppUser;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

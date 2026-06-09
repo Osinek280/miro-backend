@@ -3,11 +3,10 @@ package com.example.miro.auth.service;
 import com.example.miro.auth.dto.AuthTokens;
 import com.example.miro.auth.dto.LoginRequest;
 import com.example.miro.auth.dto.RegisterRequest;
-import com.example.miro.auth.dto.UserDto;
 import com.example.miro.auth.entity.RefreshToken;
 import com.example.miro.security.jwt.JwtService;
-import com.example.miro.user.AppUser;
-import com.example.miro.user.UserRepository;
+import com.example.miro.user.entity.AppUser;
+import com.example.miro.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,16 +23,6 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final RefreshTokenService refreshTokenService;
   private final JwtService jwtService;
-
-  public UserDto me(AppUser user) {
-    return new UserDto(
-        user.getId(),
-        user.getName(),
-        user.getEmail(),
-        user.getAvatarUrl(),
-        user.getProvider()
-    );
-  }
 
   public AuthTokens register(RegisterRequest request) {
 
