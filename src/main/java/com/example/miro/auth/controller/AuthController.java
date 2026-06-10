@@ -34,7 +34,7 @@ public class AuthController {
         .secure(false)
         .path("/")
         .sameSite("Lax")
-        .maxAge(15 * 60) // 15 minutes
+        .maxAge(60) // 15 minutes
         .build();
 
 
@@ -47,8 +47,10 @@ public class AuthController {
         .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .headers(headers -> {
+          headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+          headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        })
         .build();
   }
 
@@ -61,7 +63,7 @@ public class AuthController {
         .secure(false)
         .path("/")
         .sameSite("Lax")
-        .maxAge(15 * 60) // 15 minutes
+        .maxAge(60) // 15 minutes => 1 minute for refreshToken test
         .build();
 
     ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
@@ -73,8 +75,10 @@ public class AuthController {
         .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .headers(headers -> {
+          headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+          headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        })
         .build();
   }
 
@@ -106,9 +110,17 @@ public class AuthController {
     String ipAddress = request.getRemoteAddr();
     System.out.println("User-Agent: " + userAgent + ", IP: " + ipAddress);
 
-    AuthTokens authResp = authService.refresh(refreshToken);
+    AuthTokens tokens = authService.refresh(refreshToken);
 
-    ResponseCookie cookie = ResponseCookie.from("refresh_token", authResp.refreshToken())
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", tokens.accessToken())
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(60) // 15 minutes => 1 minute for refreshToken test
+        .build();
+
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", tokens.refreshToken())
         .httpOnly(true)
         .secure(false)
         .path("/")
@@ -119,7 +131,10 @@ public class AuthController {
     System.out.println("Refresh token cookie set in response");
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        .headers(headers -> {
+          headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+          headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        })
         .build();
   }
 
@@ -143,8 +158,10 @@ public class AuthController {
         .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .headers(headers -> {
+          headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+          headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        })
         .build();
   }
 }
