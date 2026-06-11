@@ -20,11 +20,6 @@ public class JwtService {
   @Value("${jwt.secret.key}")
   private String secretKey;
 
-  @PostConstruct
-  public void printSecretKeyForTests() {
-    System.out.println("JWT secretKey (TEST ONLY): " + secretKey);
-  }
-
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
   }
